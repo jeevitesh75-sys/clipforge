@@ -1,0 +1,21 @@
+# Optional: auto-deploys this repo to a Hugging Face Space after every push to GitHub.
+# Needs GitHub repo secret HF_TOKEN and repo variables HF_USER, HF_SPACE.
+name: Sync to Hugging Face Space
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    if: ${{ vars.HF_USER != '' && vars.HF_SPACE != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Push to Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_USER: ${{ vars.HF_USER }}
+          HF_SPACE: ${{ vars.HF_SPACE }}
+        run: git push --force https://$HF_USER:$HF_TOKEN@huggingface.co/spaces/$HF_USER/$HF_SPACE HEAD:main
